@@ -1,8 +1,3 @@
-FROM node:24.16.0-bookworm-slim
-WORKDIR /app
-
-COPY package.json ./
-RUN npm install --omit=dev
-COPY . .
-EXPOSE 3000
-CMD ["npm", "start"]
+FROM alpine:latest
+RUN echo "Probando la conexion automatica a AWS ECR"
+CMD ["echo", "Pipeline exitoso de Franz"]
