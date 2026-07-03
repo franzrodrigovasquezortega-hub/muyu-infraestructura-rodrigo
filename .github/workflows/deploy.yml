@@ -26,7 +26,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    # PARTE 1: Construimos la imagen localmente usando un tag dinámico (Run Number)
+    # PARTE 1: El tag ahora lleva el número de ejecución para ser 100% único
     - name: Build and Tag Image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -35,7 +35,7 @@ jobs:
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
-    # PARTE 2: Agregamos la acción de Trivy usando ese tag dinámico
+    # PARTE 2: Trivy analiza la imagen usando exactamente el mismo tag único
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
@@ -44,7 +44,7 @@ jobs:
         exit-code: '0'
         severity: 'CRITICAL,HIGH'
 
-    # PARTE 3: Subimos la imagen a AWS libre de bloqueos por inmutabilidad
+    # PARTE 3: Subimos la imagen a AWS únicamente con su tag dinámico e irrepetible
     - name: Push Image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
