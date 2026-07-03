@@ -26,25 +26,25 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    # PARTE 1: Construimos la imagen localmente primero
+ # PARTE 1: Construimos la imagen localmente usando solo el tag único del commit
     - name: Build and Tag Image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
         ECR_REPOSITORY: muyu 
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:latest .
+        docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
-
+    # PARTE 2: Trivy analiza la imagen usando ese tag único
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
         image-ref: ${{ steps.login-ecr.outputs.registry }}/muyu:${{ github.sha }}
         format: 'table'
-        exit-code: '0' 
+        exit-code: '0'
         severity: 'CRITICAL,HIGH'
 
-
+    # PARTE 3: Subimos la imagen a AWS únicamente con su tag único
     - name: Push Image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
