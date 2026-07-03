@@ -26,7 +26,7 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    # PARTE 1: El tag ahora lleva el número de ejecución para ser 100% único cada vez
+    # PARTE 1: El tag ahora lleva el número de ejecución para ser 100% único
     - name: Build and Tag Image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
@@ -44,7 +44,7 @@ jobs:
         exit-code: '0'
         severity: 'CRITICAL,HIGH'
 
-    # PARTE 3: Subimos la imagen a AWS únicamente con su tag dinámico e irrepetible
+    # PARTE 3: Subimos la imagen a AWS únicamente con su tag único
     - name: Push Image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
