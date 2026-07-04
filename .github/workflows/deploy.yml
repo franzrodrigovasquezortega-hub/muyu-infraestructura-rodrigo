@@ -27,28 +27,29 @@ jobs:
       uses: aws-actions/amazon-ecr-login@v2
 
     # PARTE 1: Compilamos apuntando a rodrigo-muyu
+   # PARTE 1
     - name: Build and Tag Image
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: rodrigo-muyu # <--- CORREGIDO
-        IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
+        ECR_REPOSITORY: rodrigo-muyu
+        IMAGE_TAG: build-${{ github.run_number }} # <--- CAMBIA ESTO AQUÍ
       run: |
         docker build -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
 
-    # PARTE 2: Trivy analiza la imagen en tu nuevo repositorio
+    # PARTE 2 (TRIVY)
     - name: Run Trivy vulnerability scanner
       uses: aquasecurity/trivy-action@master
       with:
-        image-ref: ${{ steps.login-ecr.outputs.registry }}/rodrigo-muyu:${{ github.sha }}-${{ github.run_number }} # <--- CORREGIDO
+        image-ref: ${{ steps.login-ecr.outputs.registry }}/rodrigo-muyu:build-${{ github.run_number }} # <--- Y AQUÍ
         format: 'table'
         exit-code: '0'
         severity: 'CRITICAL,HIGH'
 
-    # PARTE 3: Subimos la imagen a tu repositorio limpio rodrigo-muyu
+    # PARTE 3
     - name: Push Image to Amazon ECR
       env:
         ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-        ECR_REPOSITORY: rodrigo-muyu # <--- CORREGIDO
-        IMAGE_TAG: ${{ github.sha }}-${{ github.run_number }}
+        ECR_REPOSITORY: rodrigo-muyu
+        IMAGE_TAG: build-${{ github.run_number }} # <--- Y AQUÍ TAMBIÉN
       run: |
         docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
